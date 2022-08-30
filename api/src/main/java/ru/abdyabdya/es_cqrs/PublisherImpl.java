@@ -21,12 +21,12 @@ public class PublisherImpl implements Publisher {
     private final CommandProcessor commandProcessor;
 
     @Override
-    public Command publish(Command command) {
+    public void publish(Command command) {
+        if (command == null) return;
         Collection<Consumer<Command>> handlers = consumerHandlerMap.get(command.getClass());
         if (handlers != null && !handlers.isEmpty()){
             Command processedCommand = commandProcessor.processCommand(command);
             handlers.forEach(x -> x.accept(processedCommand));
-            return processedCommand;
         } else {
             throw new IllegalStateException(format("No handlers exist for class %s", command.getClass()));
         }
@@ -54,7 +54,7 @@ public class PublisherImpl implements Publisher {
     }
 
     @Override
-    public void add(Class type, Consumer<Command> consumer) {
+    public void addCommandHandler(Class type, Consumer<Command> consumer) {
         if (consumerHandlerMap.containsKey(type)) {
             consumerHandlerMap.get(type).add(consumer);
         } else {

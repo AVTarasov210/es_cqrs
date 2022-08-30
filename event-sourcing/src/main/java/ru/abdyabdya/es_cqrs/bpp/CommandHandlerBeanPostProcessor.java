@@ -52,7 +52,7 @@ public class CommandHandlerBeanPostProcessor implements BeanPostProcessor {
 
     @SneakyThrows
     private void addWithInvoke(@NonNull Object object, @NonNull Method handleMethod) {
-        publisher.add(handleMethod.getParameterTypes()[0], a -> invoke(object, handleMethod, a));
+        publisher.addCommandHandler(handleMethod.getParameterTypes()[0], a -> invoke(object, handleMethod, a));
     }
 
     @SneakyThrows

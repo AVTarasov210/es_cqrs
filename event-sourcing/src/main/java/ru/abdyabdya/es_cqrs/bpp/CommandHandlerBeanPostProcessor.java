@@ -1,11 +1,12 @@
 package ru.abdyabdya.es_cqrs.bpp;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.MethodInvocationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import ru.abdyabdya.es_cqrs.annotations.Handler;
 import ru.abdyabdya.es_cqrs.Publisher;
@@ -17,19 +18,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
 
 
 @Component
+@RequiredArgsConstructor
 public class CommandHandlerBeanPostProcessor implements BeanPostProcessor {
 
     private final Map<String, List<Method>> handlers = new HashMap<>();
     private final Publisher publisher;
-
-    @Autowired
-    public CommandHandlerBeanPostProcessor(ApplicationContext applicationContext) {
-        publisher = applicationContext.getBean(Publisher.class);
-    }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
@@ -50,9 +46,10 @@ public class CommandHandlerBeanPostProcessor implements BeanPostProcessor {
         return bean;
     }
 
-    @SneakyThrows
     private void addWithInvoke(@NonNull Object object, @NonNull Method handleMethod) {
-        publisher.addCommandHandler(handleMethod.getParameterTypes()[0], a -> invoke(object, handleMethod, a));
+        Class[] classes = handleMethod.getParameterTypes();
+        if (classes.length != 1) throw new RuntimeException("handler mast contains in params only Command");
+        publisher.addCommandHandler(classes[0], a -> invoke(object, handleMethod, a));
     }
 
     @SneakyThrows

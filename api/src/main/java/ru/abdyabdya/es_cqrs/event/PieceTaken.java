@@ -9,6 +9,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class TakePizzaPiece extends Event {
+public class PieceTaken extends Event {
     private String username;
 }

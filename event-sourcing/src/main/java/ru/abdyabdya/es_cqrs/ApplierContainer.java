@@ -20,6 +20,10 @@ public abstract class ApplierContainer<T> {
         return object;
     }
 
+    public T apply(List <? extends Command> commands){
+        return apply(null, commands);
+    }
+
     public void add(Class cls, ApplierFunction<T> applierFunction){
         classConsumerMap.put(cls, applierFunction);
     }

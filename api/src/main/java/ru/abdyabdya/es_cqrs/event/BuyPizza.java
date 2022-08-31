@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 public class BuyPizza extends Event {
-    private Long countOfPieces;
-    private Long price;
+    private Integer countOfPieces;
+    private Integer price;
     private String username;
 }

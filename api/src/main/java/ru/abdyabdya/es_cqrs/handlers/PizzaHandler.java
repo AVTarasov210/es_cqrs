@@ -1,13 +1,13 @@
 package ru.abdyabdya.es_cqrs.handlers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.abdyabdya.es_cqrs.Command;
 import ru.abdyabdya.es_cqrs.annotations.Handler;
+import ru.abdyabdya.es_cqrs.applyers.PizzaApplier;
 import ru.abdyabdya.es_cqrs.errors.CommandException;
-import ru.abdyabdya.es_cqrs.event.BuyPizza;
-import ru.abdyabdya.es_cqrs.event.GiveMoneyBack;
-import ru.abdyabdya.es_cqrs.event.SendPizzaNotification;
-import ru.abdyabdya.es_cqrs.event.TakePizzaPiece;
+import ru.abdyabdya.es_cqrs.event.*;
+import ru.abdyabdya.es_cqrs.service.PizzaService;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,44 +17,48 @@ import static java.util.List.of;
 
 @Handler
 @Slf4j
+@RequiredArgsConstructor
 public class PizzaHandler {
 
+    private final PizzaService pizzaService;
     @Handler
     public List<Command> handle(BuyPizza command){
         if (command.getUsername()!=null && command.getUsername().isBlank())
             throw new RuntimeException("имя должно быть заполнено");
-        if (command.getCountOfPieces() != null && command.getCountOfPieces() > 0)
+        if (command.getCountOfPieces() == null || command.getCountOfPieces() <= 0)
             throw new RuntimeException("кусочков не может не быть");
-        if (command.getCountOfPieces() != null && command.getPrice() > 0)
+        if (command.getPrice() == null || command.getPrice() <= 0)
             throw new RuntimeException("пицца обязательно чего-то стоит");
-        log.debug(format("Мистер %s купил %s кусков пиццы за %s денег",
+        log.info("Мистер {} купил {} кусков пиццы за {} денег",
                 command.getUsername(),
                 command.getCountOfPieces(),
-                command.getPrice()));
+                command.getPrice());
         return of(SendPizzaNotification.builder().username(command.getUsername()).build());
     }
     @Handler
     public List<Command> handle(SendPizzaNotification command) {
-        log.debug(format("Пицца пицца у %s пицца!!!", command.getUsername()));
+        log.info("Пицца пицца у {} пицца!!!", command.getUsername());
         return Collections.emptyList();
     }
     @Handler
     public List<Command> handle(TakePizzaPiece command) {
-        if (canTakeOnePiece()) {
-            log.debug(format("%s взял кусочек", command.getUsername()));
+        if (pizzaService.checkPieces(command.getEventId())) {
+            return of(PieceTaken.builder().eventId(command.getEventId()).username(command.getUsername()).build());
         } else {
-            throw new IllegalArgumentException();
+            log.info("а кусочек взять нельзя");
+            return null;
         }
-        return Collections.emptyList();
-    }
-
-    private boolean canTakeOnePiece() {
-        return true;
     }
 
     @Handler
     public List<Command> handle(GiveMoneyBack command) {
-        log.debug(format("%s вернул %s", command.getUsername(), command.getAmountOfMoney()));
+        log.info("{} вернул {}", command.getUsername(), command.getAmountOfMoney());
+        return Collections.emptyList();
+    }
+
+    @Handler
+    public List<Command> handle(PieceTaken command) {
+        log.info("{} взял кусочек", command.getUsername());
         return Collections.emptyList();
     }
 }

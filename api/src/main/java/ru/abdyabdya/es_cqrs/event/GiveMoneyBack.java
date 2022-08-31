@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class GiveMoneyBack extends Event {
-    private Long amountOfMoney;
+    private Integer amountOfMoney;
     private String username;
     private String targetUser;
 }

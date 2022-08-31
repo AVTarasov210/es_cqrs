@@ -34,6 +34,7 @@ public class PublisherImpl implements Publisher {
 
     @Override
     public void publish(List<Command> commands) {
+        if (commands == null) return;
         commands.forEach(this::publish);
     }
 

@@ -13,14 +13,13 @@ import java.util.List;
 @Slf4j
 public class CommandProcessorImpl implements CommandProcessor {
 
-    List<Command> commandList = new LinkedList<>();
+    private final CommandRepository commandRepository;
 
     @Override
     public Command processCommand(Command command) {
         if (command instanceof Event) {
-            commandList.add(command);
+            commandRepository.save((Event)command);
         }
-        log.info("обрабатываем команду");
         return command;
     }
 

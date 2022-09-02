@@ -9,15 +9,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class CommandRepository {
-    List<Event> commandList = new LinkedList<>();
+public class EventRepository {
+    List<Event> eventList = new LinkedList<>();
 
     public void save(Event command){
-        commandList.add(command);
+        eventList.add(command);
     }
 
     public List<Event> findById(Long id){
-        return commandList.stream()
+        return eventList.stream()
                 .filter(x->x.getEventId().equals(id))
                 .sorted(Comparator.comparing(Event::getCreateAt))
                 .collect(Collectors.toList());

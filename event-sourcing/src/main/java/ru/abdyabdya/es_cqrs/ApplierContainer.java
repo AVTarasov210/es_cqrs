@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public abstract class ApplierContainer<T> {
 
     private Map <Class, ApplierFunction<T>> classConsumerMap = new HashMap <>();

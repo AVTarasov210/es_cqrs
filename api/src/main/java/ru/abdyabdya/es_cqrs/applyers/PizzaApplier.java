@@ -2,22 +2,37 @@ package ru.abdyabdya.es_cqrs.applyers;
 
 import ru.abdyabdya.es_cqrs.ApplierContainer;
 import ru.abdyabdya.es_cqrs.annotations.Applier;
+import ru.abdyabdya.es_cqrs.dto.PizzaDto;
 import ru.abdyabdya.es_cqrs.event.BuyPizza;
 import ru.abdyabdya.es_cqrs.event.PieceTaken;
-import ru.abdyabdya.es_cqrs.event.TakePizzaPiece;
 
 @Applier
-public class PizzaApplier extends ApplierContainer<Long> {
+public class PizzaApplier extends ApplierContainer<PizzaDto> {
 
     @Applier
-    public Long apply(Long countOfPieces, BuyPizza command){
-        if (countOfPieces==null) countOfPieces = 0l;
-        return countOfPieces + command.getCountOfPieces();
+    public PizzaDto apply(PizzaDto pizzaDto, BuyPizza command){
+        if (pizzaDto==null) pizzaDto = new PizzaDto();
+        if (pizzaDto.getUsername()!=null && !pizzaDto.getUsername().equals(command.getUsername())){
+            throw new RuntimeException("разные люди не могут покупать пиццу с одинаковыми айди");
+        }
+        pizzaDto.setUsername(command.getUsername());
+        pizzaDto.setPiecePrice(command.getPrice()/command.getCountOfPieces());
+        pizzaDto.setPrice(pizzaDto.getPrice()+command.getPrice());
+        pizzaDto.setPieceCount(pizzaDto.getPieceCount()+command.getCountOfPieces());
+
+        return pizzaDto;
     }
 
     @Applier
-    public Long apply(Long countOfPieces, PieceTaken command){
-        return countOfPieces - 1;
+    public PizzaDto apply(PizzaDto pizzaDto, PieceTaken command){
+        if (pizzaDto.getBorrowers().containsKey(command.getUsername())){
+            pizzaDto.getBorrowers().put(
+                    command.getUsername(),
+                    pizzaDto.getBorrowers().get(command.getUsername())+pizzaDto.getPiecePrice());
+        } else {
+            pizzaDto.getBorrowers().put(command.getUsername(), pizzaDto.getPiecePrice());
+        }
+        return pizzaDto;
     }
 
     @Override

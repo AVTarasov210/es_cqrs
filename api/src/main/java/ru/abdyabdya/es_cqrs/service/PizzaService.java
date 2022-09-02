@@ -19,6 +19,6 @@ public class PizzaService {
     }
 
     public PizzaDto getById(Long id){
-        return pizzaApplier.apply(eventRepository.findById(id));
+        return pizzaApplier.apply(id);
     }
 }

@@ -30,7 +30,9 @@ public class PizzaHandler {
                 command.getUsername(),
                 command.getCountOfPieces(),
                 command.getPrice());
-        return of(SendPizzaNotification.builder().username(command.getUsername()).build());
+        return of(SendPizzaNotification.builder()
+                .username(command.getUsername())
+                .build());
     }
     @Handler
     public List<Command> handle(SendPizzaNotification command) {
